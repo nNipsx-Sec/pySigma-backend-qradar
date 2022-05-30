@@ -212,26 +212,53 @@ class QradarBackend(TextQueryBackend):
         qradar_prefix += " from %s where " %(aql_database)
         escaped_query = " \\\n".join(query.split("\n"))      # escape line ends for multiline queries
         qradar_prefix += escaped_query
+        
+        # Process timespan in SigmaRule need to add change function from_dict of file rule.py below
+        """
+            def from_dict(cls, detections : dict, source : Optional[SigmaRuleLocation] = None) -> "SigmaDetections":
+
         try:
-            timeframe = rule.detection.timeframe
-        except:
-            timeframe = None
-        if timeframe != None:
-            time_unit = timeframe[-1:]
-            duration = timeframe[:-1]
-            timeframe_object = {}
-            if time_unit == "s":
-                timeframe_object['SECONDS'] = int(duration)
-            elif time_unit == "m":
-                timeframe_object['MINUTES'] = int(duration)
-            elif time_unit == "h":
-                timeframe_object['HOURS'] = int(duration)
-            elif time_unit == "d":
-                timeframe_object['DAYS'] = int(duration)
+            if isinstance(detections["condition"], list):
+                condition = detections["condition"]
             else:
-                timeframe_object['MONTHS'] = int(duration)
-            for k,v in timeframe_object.items():
-                qradar_prefix += f" LAST {v} {k}"
+                condition = [ detections["condition"] ]
+        except KeyError:
+            raise sigma_exceptions.SigmaConditionError("Sigma rule must contain at least one condition", source=source)
+        try:
+            timespan = detections["timespan"]
+        except:
+            timespan = None
+        return cls(
+                detections={
+                    name: SigmaDetection.from_definition(definition, source)
+                    for name, definition in detections.items()
+                    if name != "condition"
+                    },
+                condition=condition,
+                timespan = timespan,
+                source=source,
+                )
+        """
+        # try:
+        #     timeframe = rule.detection.timeframe
+        # except:
+        #     timeframe = None
+        # if timeframe != None:
+        #     time_unit = timeframe[-1:]
+        #     duration = timeframe[:-1]
+        #     timeframe_object = {}
+        #     if time_unit == "s":
+        #         timeframe_object['SECONDS'] = int(duration)
+        #     elif time_unit == "m":
+        #         timeframe_object['MINUTES'] = int(duration)
+        #     elif time_unit == "h":
+        #         timeframe_object['HOURS'] = int(duration)
+        #     elif time_unit == "d":
+        #         timeframe_object['DAYS'] = int(duration)
+        #     else:
+        #         timeframe_object['MONTHS'] = int(duration)
+        #     for k,v in timeframe_object.items():
+        #         qradar_prefix += f" LAST {v} {k}"
         return qradar_prefix
 
     def finalize_output_savedsearches(self, queries: List[str]) -> str:
