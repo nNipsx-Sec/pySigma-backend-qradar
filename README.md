@@ -20,6 +20,7 @@ This backend is currently maintained by:
 
 Supported by:
 * Dinh.Bui, Tuan.Le, Hieu.Le, Khanh.Bui - GTSC Team
+
 Pre-release Qradar Backend with new module for generate extensions for easier deploy rules in this SIEM
 
 With pipeline of Qradar, now i can't list and mapping all field so i'll try update full field in near future
