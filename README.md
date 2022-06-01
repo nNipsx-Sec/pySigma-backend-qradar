@@ -1,4 +1,5 @@
 
+![Tests](https://github.com/nNipsx-Sec/pySigma-backend-qradar/actions/workflows/test.yml/badge.svg)
 ![Status](https://img.shields.io/badge/Status-pre--release-orange)
 
 # pySigma Qradar Backend
