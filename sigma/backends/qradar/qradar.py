@@ -10,7 +10,7 @@ from sigma.conversion.deferred import DeferredTextQueryExpression
 from sigma.conditions import ConditionFieldEqualsValueExpression, ConditionOR
 from sigma.types import SigmaCompareExpression
 from sigma.exceptions import SigmaFeatureNotSupportedByBackendError
-from sigma.pipelines.splunk.qradar import qradar_windows_events_acceleration_keywords, qradar_cim_exetension
+from sigma.pipelines.qradar import qradar_windows_events_acceleration_keywords, qradar_cim_exetension
 import sigma
 from typing import ClassVar, Dict, List, Optional, Tuple
 # requirements
