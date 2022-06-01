@@ -54,7 +54,9 @@ qradar_windows_event = {
   "event_data.Imphash": "IMP Hash",
   "Imphash": "IMP Hash",
   "event_data.ParentCommandLine": "ParentCommandLine",
+  "ParentCommandLine": "ParentCommandLine",
   "event_data.ParentImage": "ParentImage",
+  "ParentImage": "ParentImage",
   "event_data.ParentProcessName": "ParentImageName",
   "event_data.Path": "File Path",
   "Path": "File Path",
@@ -76,7 +78,12 @@ qradar_windows_event = {
   "event_data.User": "username",
   "User": "username",
   "user": "username",
-  "OriginalFileName": "OriginalFileName"
+  "OriginalFileName": "OriginalFileName",
+  "ProcessId": "Process Id",
+  "ParentProcessId": "Parent Process ID",
+  "md5": "MD5 Hash",
+  "sha1": "SHA1 Hash",
+  "sha256": "SHA256 Hash"
 }
 
 qradar_windows_qid = {
@@ -116,8 +123,23 @@ qradar_logsource_id ={
 def qradar_windows_events_acceleration_keywords():
     return ProcessingPipeline(
         name="Qradar Windows Events/Sysmon acceleration keywords",
-        priority=10,
+        priority=20,
         items= [
+            ProcessingItem(
+                identifier="Qradar_savedsearches_unsupported_fields",
+                transformation=DetectionItemFailureTransformation("The QRadar savedsearches Sigma backend supports only the following fields for process_creation log source: " + ",".join(qradar_windows_event.keys())),
+                rule_conditions=[
+                    LogsourceCondition(
+                        product="windows"
+                    )
+                ],
+                rule_condition_linking=any,
+                detection_item_conditions=[
+                    ExcludeFieldCondition(
+                        fields = qradar_windows_event.keys()
+                    )
+                ]
+            ),
             ProcessingItem(     # Some optimizations searching for characteristic keyword for specific log sources
                 identifier="qradar_windows_event_logs",
                 transformation=FieldMappingTransformation(qradar_windows_event),
@@ -127,13 +149,14 @@ def qradar_windows_events_acceleration_keywords():
                     )
                 ]
             )
+            
         ]
     )
 
 def qradar_cim_exetension():
     qid = []
     return ProcessingPipeline(
-        name="Qradar Extensions Mapping",
+        name="Qradar Extensions Create",
         priority=20,
         items=
         [
