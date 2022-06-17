@@ -1,10 +1,10 @@
-from logging.config import IDENTIFIER
 from sigma.processing.transformations import FieldMappingTransformation, DetectionItemFailureTransformation, SetStateTransformation,DropDetectionItemTransformation
-from sigma.processing.conditions import LogsourceCondition, IncludeFieldCondition, ExcludeFieldCondition, RuleProcessingItemAppliedCondition, RuleContainsDetectionItemCondition 
+from sigma.processing.conditions import LogsourceCondition, IncludeFieldCondition, ExcludeFieldCondition, RuleProcessingItemAppliedCondition, RuleContainsDetectionItemCondition
 from sigma.processing.pipeline import ProcessingItem, ProcessingPipeline
 
 """
-List Windows Field not support:AccessList
+List Windows Field not support:
+AccessList
 Action
 Address
 AllowedToDelegateTo
@@ -288,9 +288,9 @@ qradar_logsource_id ={
 
 
 
-def qradar_windows_events_acceleration_keywords():
+def qradar_windows():
     return ProcessingPipeline(
-        name="Qradar Windows Events/Sysmon acceleration keywords",
+        name="Qradar AQL field mapping",
         priority=20,
         items= [
             ProcessingItem(
@@ -317,14 +317,14 @@ def qradar_windows_events_acceleration_keywords():
                     )
                 ]
             )
-            
+
         ]
     )
 
-def qradar_cim_exetension():
+def qradar_exetension():
     qid = []
     return ProcessingPipeline(
-        name="Qradar Extensions Create",
+        name="Qradar extension format mappings",
         priority=20,
         items=
         [

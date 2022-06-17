@@ -7,13 +7,14 @@
 This is the Qradar backend for pySigma. It provides the package `sigma.backends.qradar` with the `QradarBackend` class.
 Further, it contains the following processing pipelines in `sigma.pipelines.qradar`:
 
-* qradar_windows_events_acceleration_keywords: Qradar Windows log support
-* qradar_cim_exetension: Generate Extension rules for Qradar; Easier for deploy rules as a part of Detection as Code will release in near furture
+* qradar_windows_events_acceleration_keywords: Qradar Windows log support. Applied automatically in `default` output format.
+* qradar_exetension: Generate Extension rules for Qradar; Easier for deploy rules as a part of Detection as Code will
+  release in near furture. Applied automatically in `extension` output format.
 
 It supports the following output formats:
 
-* savedsearches: Qradar AQL queries
-* extensions: Create Extensions rules for Qradar.
+* default: Qradar AQL queries
+* extension: Create Extensions rules for Qradar.
 
 This backend is currently maintained by:
 
