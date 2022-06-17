@@ -1,3 +1,5 @@
+from io import BytesIO
+from zipfile import ZipFile
 import pytest
 from sigma.backends.qradar import QradarBackend
 from sigma.collection import SigmaCollection
@@ -131,3 +133,8 @@ detection:
     """
     result = qradar_backend.convert(SigmaCollection.from_yaml(rules), "extension")
     assert isinstance(result, bytes)
+
+    zip_io = BytesIO(result)
+    zip_file = ZipFile(zip_io)
+    xml = str(zip_file.read("sigmaQradar.xml"), "utf-8")
+    assert xml.startswith('<?xml version="1.0" encoding="UTF-8"?>')
