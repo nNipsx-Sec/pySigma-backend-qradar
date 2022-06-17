@@ -17,6 +17,7 @@ from typing import ClassVar, Dict, List, Optional, Tuple
 import urllib.parse
 import base64
 from xml.etree import cElementTree as et
+from xml.sax import saxutils
 from datetime import datetime as dt
 import pytz
 from zipfile import ZipFile
@@ -240,12 +241,12 @@ class QradarBackend(TextQueryBackend):
             buildingblock = et.tostring(tr.getroot()).decode("utf-8")
 
         # Process Building Block ruledata xml
-        BBrule_data= buildingblock.format(name=rule.title, logsourceID=logsourceID, qid=", ".join(str(i) for i in qid),aql=urllib.parse.quote(qradar_prefix))
+        BBrule_data= buildingblock.format(name=saxutils.escape(rule.title), logsourceID=saxutils.escape(logsourceID), qid=saxutils.escape(", ".join(str(i) for i in qid)),aql=urllib.parse.quote(qradar_prefix))
         BBrule_data = base64.b64encode(BBrule_data.encode('ascii')).decode('ascii')
         # Process Rule data xml
-        rule_data = xmlrule.format(ruleID=ruleID, name=rule.title)
+        rule_data = xmlrule.format(ruleID=ruleID, name=saxutils.escape(rule.title))
         rule_data = base64.b64encode(rule_data.encode('ascii')).decode('ascii')
-        qradar_output =  contentRule.format(BBruledata=BBrule_data, name=rule.title, BBruleID=ruleID+1, ruledata=rule_data, ruleID=ruleID, date=date)
+        qradar_output =  contentRule.format(BBruledata=BBrule_data, name=saxutils.escape(rule.title),BBruleID=ruleID+1, ruledata=rule_data, ruleID=ruleID, date=date)
         #ruleID for identifier rules mapping group in Qradar
         ruleID += 2
         #write to xml and unzip if need add file manifest.json
