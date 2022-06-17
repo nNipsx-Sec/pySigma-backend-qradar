@@ -61,7 +61,7 @@ def test_qradar_pipeline_web_proxy_field_mapping():
                     dst_ip: '54.229.169.162'
                 condition: sel
         """)
-    ) == ['"c-uri"=\'https://www.thebeatles.com/\' AND "c-uri-query"=\'songs\' AND "cs-method"=\'GET\' AND "r-dns"=\'www.thebeatles.com\' AND INCIDR(\'192.168.1.0/24\', "src_ip") AND "dst_ip"=\'54.229.169.162\'']
+    ) == ['SELECT UTF8(payload) as search_payload from events where "c-uri"=\'https://www.thebeatles.com/\' AND "c-uri-query"=\'songs\' AND "cs-method"=\'GET\' AND "r-dns"=\'www.thebeatles.com\' AND INCIDR(\'192.168.1.0/24\', "src_ip") AND "dst_ip"=\'54.229.169.162\'']
 
 
 def test_qradar_pipeline_unsupported_field_process_start():
