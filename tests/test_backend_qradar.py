@@ -104,4 +104,30 @@ detection:
         """SELECT UTF8(payload) as search_payload from events where "fieldA"='foo' AND "fieldB"='bar'"""
     ]
 
-
+def test_qradar_extension_output(qradar_backend : QradarBackend):
+    rules = """
+title: Test 1
+status: test
+logsource:
+    category: test_category
+    product: test_product
+detection:
+    sel:
+        fieldA|re: foo.*bar
+        fieldB: foo
+        fieldC: bar
+    condition: sel
+---
+title: Test 2
+status: test
+logsource:
+    category: test_category
+    product: test_product
+detection:
+    sel:
+        fieldA: foo
+        fieldB: bar
+    condition: sel
+    """
+    result = qradar_backend.convert(SigmaCollection.from_yaml(rules), "extension")
+    assert isinstance(result, bytes)
