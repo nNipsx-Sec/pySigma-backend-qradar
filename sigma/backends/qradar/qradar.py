@@ -1,4 +1,4 @@
-from cgi import test
+from io import BytesIO
 from unicodedata import name
 from sigma.conversion.state import ConversionState
 from sigma.rule import SigmaRule
@@ -10,7 +10,7 @@ from sigma.conversion.deferred import DeferredTextQueryExpression
 from sigma.conditions import ConditionFieldEqualsValueExpression, ConditionOR
 from sigma.types import SigmaCompareExpression
 from sigma.exceptions import SigmaFeatureNotSupportedByBackendError
-from sigma.pipelines.qradar import qradar_windows_events_acceleration_keywords, qradar_cim_exetension
+from sigma.pipelines.qradar import qradar_windows, qradar_exetension
 import sigma
 from typing import ClassVar, Dict, List, Optional, Tuple
 # requirements
@@ -131,9 +131,9 @@ contentRule = """<custom_rule>
 	</fgroup_link>
     """
 ruleID =200000
-UTC = pytz.timezone("UTC") 
+UTC = pytz.timezone("UTC")
 date = dt.now(UTC).strftime("%FT%T%z")
-# Convert time to qradar time format 
+# Convert time to qradar time format
 date = "{0}:{1}".format(
   date[:-2],
   date[-2:]
@@ -164,7 +164,7 @@ class QradarBackend(TextQueryBackend):
     contains_expression   : ClassVar[str] = "{field} ILIKE '%{value}%'"
 
     compare_op_expression : ClassVar[str] = "{field} {operator} {value}"
-    
+
     compare_operators : ClassVar[Dict[SigmaCompareExpression.CompareOperators, str]] = {
         SigmaCompareExpression.CompareOperators.LT  : "<",
         SigmaCompareExpression.CompareOperators.LTE : "<=",
@@ -189,18 +189,16 @@ class QradarBackend(TextQueryBackend):
     deferred_only_query : ClassVar[str] = ""
 
     output_format_processing_pipeline = defaultdict(ProcessingPipeline,
-    # Mapping rules 
-        savedsearches= qradar_windows_events_acceleration_keywords(),
-        extensions = qradar_cim_exetension()
+    # Mapping rules
+        default = qradar_windows(),
+        extensions = qradar_exetension()
     )
-    
+
     def __init__(self, processing_pipeline: Optional["sigma.processing.pipeline.ProcessingPipeline"] = None, collect_errors: bool = False, **kwargs):
         super().__init__(processing_pipeline, collect_errors, **kwargs)
 
 
-    def finalize_query_savedsearches(self, rule: SigmaRule, query: str, index: int, state: ConversionState) -> str:
-        
-        
+    def finalize_query_default(self, rule: SigmaRule, query: str, index: int, state: ConversionState) -> str:
         if rule.logsource.product == "qflow" or rule.logsource.service == "netflow" or rule.logsource.product == "ipfix" or rule.logsource.category == "flow":
             aql_database = "flows"
         else:
@@ -212,65 +210,17 @@ class QradarBackend(TextQueryBackend):
         qradar_prefix += " from %s where " %(aql_database)
         escaped_query = " \\\n".join(query.split("\n"))      # escape line ends for multiline queries
         qradar_prefix += escaped_query
-        """
-            def from_dict(cls, detections : dict, source : Optional[SigmaRuleLocation] = None) -> "SigmaDetections":
-
-        try:
-            if isinstance(detections["condition"], list):
-                condition = detections["condition"]
-            else:
-                condition = [ detections["condition"] ]
-        except KeyError:
-            raise sigma_exceptions.SigmaConditionError("Sigma rule must contain at least one condition", source=source)
-        try:
-            timespan = detections["timespan"]
-        except:
-            timespan = None
-        return cls(
-                detections={
-                    name: SigmaDetection.from_definition(definition, source)
-                    for name, definition in detections.items()
-                    if name != "condition"
-                    },
-                condition=condition,
-                timespan = timespan,
-                source=source,
-                )
-        """
-        # try:
-        #     timeframe = rule.detection.timeframe
-        # except:
-        #     timeframe = None
-        # if timeframe != None:
-        #     time_unit = timeframe[-1:]
-        #     duration = timeframe[:-1]
-        #     timeframe_object = {}
-        #     if time_unit == "s":
-        #         timeframe_object['SECONDS'] = int(duration)
-        #     elif time_unit == "m":
-        #         timeframe_object['MINUTES'] = int(duration)
-        #     elif time_unit == "h":
-        #         timeframe_object['HOURS'] = int(duration)
-        #     elif time_unit == "d":
-        #         timeframe_object['DAYS'] = int(duration)
-        #     else:
-        #         timeframe_object['MONTHS'] = int(duration)
-        #     for k,v in timeframe_object.items():
-        #         qradar_prefix += f" LAST {v} {k}"
         return qradar_prefix
 
-    def finalize_output_savedsearches(self, queries: List[str]) -> str:
-        return f"\n".join(queries)
-
-    def finalize_query_extensions(self, rule: SigmaRule, query: str, index: int, state: ConversionState) -> str:
+    def finalize_query_extension(self, rule: SigmaRule, query: str, index: int, state: ConversionState) -> str:
         global ruleID, buildingblock
         qradar_prefix = " \\\n".join(query.split("\n"))      # escape line ends for multiline queries
         # ToDo: Process if qid or logsourceID = None => Using another format of BB ruledata => Done
         qid = []
         for key,id in state.processing_state.items():
             if "qid" in key:
-                qid += id 
-            
+                qid += id
+
         logsourceID = state.processing_state["QradarLogSources"] if "QradarLogSources" in state.processing_state else []
         if not qid or not logsourceID:
             tr = et.ElementTree(et.fromstring(buildingblock))
@@ -300,7 +250,8 @@ class QradarBackend(TextQueryBackend):
         ruleID += 2
         #write to xml and unzip if need add file manifest.json
         return qradar_output
-    def finalize_output_extensions(self, queries: List[str]) -> str:
+
+    def finalize_output_extension(self, queries: List[str]) -> bytes:
         xmlFile =  """<?xml version="1.0" encoding="UTF-8"?>
 <content>
 	<qradarversion>2020.11.0.20210517144015</qradarversion>
@@ -324,8 +275,8 @@ class QradarBackend(TextQueryBackend):
         f = open(xml_output, "w")
         f.write(xmlFile)
         f.close()
-        zip_file = "SigmaQradarExtensions-"+date+".zip"
+        zip_file = BytesIO()
         zipObj = ZipFile(zip_file, 'w')
         zipObj.write(xml_output)
         zipObj.close()
-        return "Generate Qradar extension output here: "+zip_file
+        return zip_file

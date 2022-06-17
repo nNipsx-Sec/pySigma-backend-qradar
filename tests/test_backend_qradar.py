@@ -1,8 +1,6 @@
-from sigma.exceptions import SigmaFeatureNotSupportedByBackendError
 import pytest
 from sigma.backends.qradar import QradarBackend
 from sigma.collection import SigmaCollection
-from sigma.pipelines.qradar import qradar_windows_events_acceleration_keywords
 
 @pytest.fixture
 def qradar_backend():
@@ -23,8 +21,8 @@ def test_qradar_in_expression(qradar_backend : QradarBackend):
                         - valueB
                         - valueC*
                 condition: sel
-        """),"savedsearches"
-    ) == 'SELECT UTF8(payload) as search_payload from events where "fieldA" ILIKE ENUMERATION(\'valueA\',\'valueB\',\'valueC%\')'
+        """),
+    ) == ['SELECT UTF8(payload) as search_payload from events where "fieldA" ILIKE ENUMERATION(\'valueA\',\'valueB\',\'valueC%\')']
 
 def test_qradar_regex_query(qradar_backend : QradarBackend):
     assert qradar_backend.convert(
@@ -40,8 +38,8 @@ def test_qradar_regex_query(qradar_backend : QradarBackend):
                     fieldB: foo
                     fieldC: bar
                 condition: sel
-        """),"savedsearches"
-    ) == 'SELECT UTF8(payload) as search_payload from events where "fieldA" IMATCHES \'foo.*bar\' AND "fieldB"=\'foo\' AND "fieldC"=\'bar\''
+        """)
+    ) == ['SELECT UTF8(payload) as search_payload from events where "fieldA" IMATCHES \'foo.*bar\' AND "fieldB"=\'foo\' AND "fieldC"=\'bar\'']
 
 def test_qradar_single_regex_query(qradar_backend : QradarBackend):
     assert qradar_backend.convert(
@@ -55,8 +53,8 @@ def test_qradar_single_regex_query(qradar_backend : QradarBackend):
                 sel:
                     fieldA|re: foo.*bar
                 condition: sel
-        """),"savedsearches"
-    ) == 'SELECT UTF8(payload) as search_payload from events where "fieldA" IMATCHES \'foo.*bar\''
+        """)
+    ) == ['SELECT UTF8(payload) as search_payload from events where "fieldA" IMATCHES \'foo.*bar\'']
 
 def test_qradar_cidr_query(qradar_backend : QradarBackend):
     assert qradar_backend.convert(
@@ -72,11 +70,11 @@ def test_qradar_cidr_query(qradar_backend : QradarBackend):
                     fieldB: foo
                     fieldC: bar
                 condition: sel
-        """),"savedsearches"
-    ) == 'SELECT UTF8(payload) as search_payload from events where INCIDR(\'192.168.0.0/16\', "fieldA") AND "fieldB"=\'foo\' AND "fieldC"=\'bar\''
+        """)
+    ) == ['SELECT UTF8(payload) as search_payload from events where INCIDR(\'192.168.0.0/16\', "fieldA") AND "fieldB"=\'foo\' AND "fieldC"=\'bar\'']
 
 
-def test_qradar_savedsearch_output(qradar_backend : QradarBackend):
+def test_qradar_default_output(qradar_backend : QradarBackend):
     rules = """
 title: Test 1
 status: test
@@ -101,7 +99,9 @@ detection:
         fieldB: bar
     condition: sel
     """
-    assert qradar_backend.convert(SigmaCollection.from_yaml(rules), "savedsearches") == """SELECT UTF8(payload) as search_payload from events where "fieldA" IMATCHES 'foo.*bar' AND "fieldB"='foo' AND "fieldC"='bar'
-SELECT UTF8(payload) as search_payload from events where "fieldA"='foo' AND "fieldB"='bar'"""
+    assert qradar_backend.convert(SigmaCollection.from_yaml(rules), ) == [
+        """SELECT UTF8(payload) as search_payload from events where "fieldA" IMATCHES 'foo.*bar' AND "fieldB"='foo' AND "fieldC"='bar'""",
+        """SELECT UTF8(payload) as search_payload from events where "fieldA"='foo' AND "fieldB"='bar'"""
+    ]
 
 

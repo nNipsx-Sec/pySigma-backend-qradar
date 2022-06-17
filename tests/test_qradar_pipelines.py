@@ -17,8 +17,8 @@ def test_qradar_windows_pipeline_simple():
                     CommandLine: val1
                     Image: val2
                 condition: sel
-        """),"savedsearches"
-    ) == 'SELECT UTF8(payload) as search_payload from events where "Process CommandLine"=\'val1\' AND "Image"=\'val2\''
+        """)
+    ) == ['SELECT UTF8(payload) as search_payload from events where "Process CommandLine"=\'val1\' AND "Image"=\'val2\'']
 
 def test_qradar_pipeline_process_creation_field_mapping():
     assert QradarBackend().convert(
@@ -41,26 +41,8 @@ def test_qradar_pipeline_process_creation_field_mapping():
                     sha1: 'Beggars Banquet'
                     sha256: 'Let it Bleed'
                 condition: sel
-        """),"savedsearches"
-    ) == 'SELECT UTF8(payload) as search_payload from events where "Process Id"=1962 AND "Image"=\'Paint it Black\' AND "ImageName"=\'Wild Horses\' AND "Process CommandLine"=\'Jumpin\' Jack Flash\' AND "username"=\'Mick Jagger\' AND "Parent Process ID"=1972 AND "ParentImage"=\'Muddy Waters\' AND "MD5 Hash"=\'Steel Wheels\' AND "SHA1 Hash"=\'Beggars Banquet\' AND "SHA256 Hash"=\'Let it Bleed\''
-
-
-def test_qradar_pipeline_dns_field_mapping():
-    assert QradarBackend().convert(
-        SigmaCollection.from_yaml("""
-            title: Test
-            status: test
-            logsource:
-                category: dns
-                product: windows
-            detection:
-                sel:
-                    QueryName: 'My Generation'
-                    Computer: 'Teenage Wasteland'
-                    record_type: 'Pinball Wizard'
-                condition: sel
         """)
-    ) == ['"QueryName"=\'My Generation\' AND "Computer"=\'Teenage Wasteland\' AND "record_type"=\'Pinball Wizard\'']
+    ) == ['SELECT UTF8(payload) as search_payload from events where "Process Id"=1962 AND "Image"=\'Paint it Black\' AND "ImageName"=\'Wild Horses\' AND "Process CommandLine"=\'Jumpin\' Jack Flash\' AND "username"=\'Mick Jagger\' AND "Parent Process ID"=1972 AND "ParentImage"=\'Muddy Waters\' AND "MD5 Hash"=\'Steel Wheels\' AND "SHA1 Hash"=\'Beggars Banquet\' AND "SHA256 Hash"=\'Let it Bleed\'']
 
 def test_qradar_pipeline_web_proxy_field_mapping():
     assert QradarBackend().convert(
@@ -97,5 +79,5 @@ def test_qradar_pipeline_unsupported_field_process_start():
                         IntegrityLevel: hello
                         imphash: blah
                     condition: sel
-            """),"savedsearches"
+            """)
         )
