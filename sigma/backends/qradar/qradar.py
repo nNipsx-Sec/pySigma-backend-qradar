@@ -3,13 +3,9 @@ from unicodedata import name
 from sigma.conversion.state import ConversionState
 from sigma.rule import SigmaRule
 from collections import defaultdict
-from sigma.processing.pipeline import ProcessingItem, ProcessingPipeline
-from sigma.processing.transformations import FieldMappingTransformation
+from sigma.processing.pipeline import ProcessingPipeline
 from sigma.conversion.base import TextQueryBackend
-from sigma.conversion.deferred import DeferredTextQueryExpression
-from sigma.conditions import ConditionFieldEqualsValueExpression, ConditionOR
 from sigma.types import SigmaCompareExpression
-from sigma.exceptions import SigmaFeatureNotSupportedByBackendError
 from sigma.pipelines.qradar import qradar_windows, qradar_exetension
 import sigma
 from typing import ClassVar, Dict, List, Optional, Tuple
@@ -253,7 +249,7 @@ class QradarBackend(TextQueryBackend):
         return qradar_output
 
     def finalize_output_extension(self, queries: List[str]) -> bytes:
-        xmlFile =  """<?xml version="1.0" encoding="UTF-8"?>
+        xml_file =  """<?xml version="1.0" encoding="UTF-8"?>
 <content>
 	<qradarversion>2020.11.0.20210517144015</qradarversion>
 	<fgroup_type>
@@ -272,12 +268,9 @@ class QradarBackend(TextQueryBackend):
 		<id>88888</id>
 		<modified_date>{date}</modified_date>
 	</fgroup>""".format(date=date)+f"".join(queries)+"</content>"
-        xml_output = "sigmaQradar.xml"
-        f = open(xml_output, "w")
-        f.write(xmlFile)
-        f.close()
+
         zip_file = BytesIO()
         zipObj = ZipFile(zip_file, 'w')
-        zipObj.write(xml_output)
+        zipObj.writestr("sigmaQradar.xml" , xml_file)
         zipObj.close()
-        return zip_file
+        return zip_file.getvalue()
