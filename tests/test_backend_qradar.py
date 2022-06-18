@@ -137,4 +137,5 @@ detection:
     zip_io = BytesIO(result)
     zip_file = ZipFile(zip_io)
     xml = str(zip_file.read("sigmaQradar.xml"), "utf-8")
+    print(xml)
     assert xml.startswith('<?xml version="1.0" encoding="UTF-8"?>')
