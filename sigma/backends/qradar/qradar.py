@@ -127,7 +127,7 @@ contentRule = """<custom_rule>
 	</fgroup_link>
     """
 ruleID =200000
-date = dt.utcnow(timezone.utc).strftime("%FT%T%z")
+date = dt.now(timezone.utc).strftime("%FT%T%z")
 # Convert time to qradar time format
 date = "{0}:{1}".format(
   date[:-2],
