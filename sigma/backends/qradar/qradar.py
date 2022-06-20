@@ -14,7 +14,7 @@ import urllib.parse
 import base64
 from xml.etree import cElementTree as et
 from xml.sax import saxutils
-from datetime import datetime as dt
+from datetime import datetime as dt, timezone
 from zipfile import ZipFile
 # Qradar Backend build base on Splunk Backend => Comming up in future: group-by on correlation action and Rule Extension.
 # Author: Duc.Le - GTSC Team
@@ -127,7 +127,7 @@ contentRule = """<custom_rule>
 	</fgroup_link>
     """
 ruleID =200000
-date = dt.utcnow().strftime("%FT%T%z")
+date = dt.utcnow(timezone.utc).strftime("%FT%T%z")
 # Convert time to qradar time format
 date = "{0}:{1}".format(
   date[:-2],
