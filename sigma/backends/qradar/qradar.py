@@ -186,7 +186,7 @@ class QradarBackend(TextQueryBackend):
     output_format_processing_pipeline = defaultdict(ProcessingPipeline,
     # Mapping rules
         default = qradar_windows(),
-        extensions = qradar_exetension()
+        extension = qradar_exetension()
     )
 
     def __init__(self, processing_pipeline: Optional["sigma.processing.pipeline.ProcessingPipeline"] = None, collect_errors: bool = False, **kwargs):
