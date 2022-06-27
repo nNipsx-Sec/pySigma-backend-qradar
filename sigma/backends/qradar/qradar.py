@@ -135,7 +135,7 @@ date = "{0}:{1}".format(
 )
 class QradarBackend(TextQueryBackend):
     """Qradar SPL backend."""
-    group_expression : ClassVar[str] = "{expr}"
+    group_expression : ClassVar[str] = "({expr})"
 
     or_token : ClassVar[str] = "OR"
     and_token : ClassVar[str] = "AND"
