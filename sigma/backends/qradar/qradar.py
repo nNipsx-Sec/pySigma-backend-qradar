@@ -21,7 +21,7 @@ from zipfile import ZipFile
 # Supporting: ...
 buildingblock ="""<rule owner="admin" scope="LOCAL" type="EVENT" roleDefinition="false" buildingBlock="true" enabled="true" id="-1">
 	<name>BB: {name}</name>
-	<notes></notes>
+	<notes>{description}</notes>
 	<testDefinitions>
 		<test requiredCapabilities="EventViewer.RULECREATION|SURVEILLANCE.RULECREATION" groupId="10" group="jsp.qradar.rulewizard.condition.page.group.log" uid="0" name="com.q1labs.semsources.cre.tests.DeviceTypeID_Test" id="14">
 			<parameter id="1">
@@ -63,7 +63,7 @@ buildingblock ="""<rule owner="admin" scope="LOCAL" type="EVENT" roleDefinition=
 </rule>"""
 xmlrule = """<rule overrideid="{ruleID}" owner="admin" scope="LOCAL" type="EVENT" roleDefinition="false" buildingBlock="false" enabled="true" id="{ruleID}">
 	<name>{name}</name>
-	<notes></notes>
+	<notes>{description}</notes>
 	<testDefinitions>
 		<test requiredCapabilities="EventViewer.RULECREATION|SURVEILLANCE.RULECREATION" groupId="7" group="jsp.qradar.rulewizard.condition.page.group.functions.simple" uid="0" name="com.q1labs.semsources.cre.tests.RuleMatch_Test" id="46">
 			<parameter id="1">
@@ -89,7 +89,7 @@ xmlrule = """<rule overrideid="{ruleID}" owner="admin" scope="LOCAL" type="EVENT
 	</testDefinitions>
 	<actions flowAnalysisInterval="0" includeAttackerEventsInterval="0" forceOffenseCreation="true" offenseMapping="0"/>
 	<responses referenceTableRemove="false" referenceMapOfMapsRemove="false" referenceMapOfSetsRemove="false" referenceMapRemove="false" referenceTable="false" referenceMapOfMaps="false" referenceMapOfSets="false" referenceMap="false">
-		<newevent lowLevelCategory="7006" offenseMapping="0" forceOffenseCreation="true" qid="67500112" contributeOffenseName="true" overrideOffenseName="false" describeOffense="true" relevance="5" credibility="5" severity="3" description="BB:UC065" name="BB:UC065"/>
+		<newevent lowLevelCategory="7006" offenseMapping="0" forceOffenseCreation="true" qid="67500112" contributeOffenseName="true" overrideOffenseName="false" describeOffense="true" relevance="5" credibility="5" severity="3" description="{description}" name="{name}"/>
 	</responses>
 	<limiter hostType="ATTACKER" intervalType="m" intervalCount="30" responseCount="1"/>
 </rule>"""
@@ -236,10 +236,11 @@ class QradarBackend(TextQueryBackend):
 
         # Process Building Block ruledata xml
         query_data = urllib.parse.quote(qradar_prefix)+"|"+urllib.parse.quote('["{text}"]'.format(text=qradar_prefix.replace('"','\\"')))
-        BBrule_data= buildingblock.format(name=saxutils.escape(rule.title), logsourceID=logsourceID, qid=", ".join(str(i) for i in qid),aql=query_data)
+	description =  rule.description + "\nReferences:\n- "+"\n- ".join(rule.references)
+        BBrule_data= buildingblock.format(description= saxutils.escape(description),name=saxutils.escape(rule.title), logsourceID=logsourceID, qid=", ".join(str(i) for i in qid),aql=query_data)
         BBrule_data = base64.b64encode(BBrule_data.encode('ascii')).decode('ascii')
         # Process Rule data xml
-        rule_data = xmlrule.format(ruleID=ruleID, name=saxutils.escape(rule.title))
+        rule_data = xmlrule.format(ruleID=ruleID, name=saxutils.escape(rule.title), description=saxutils.escape(description))
         rule_data = base64.b64encode(rule_data.encode('ascii')).decode('ascii')
         qradar_output =  contentRule.format(BBruledata=BBrule_data, name=saxutils.escape(rule.title),BBruleID=ruleID+1, ruledata=rule_data, ruleID=ruleID, date=date)
         #ruleID for identifier rules mapping group in Qradar
