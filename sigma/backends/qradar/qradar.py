@@ -235,7 +235,8 @@ class QradarBackend(TextQueryBackend):
             buildingblock = et.tostring(tr.getroot()).decode("utf-8")
 
         # Process Building Block ruledata xml
-        BBrule_data= buildingblock.format(name=saxutils.escape(rule.title), logsourceID=logsourceID, qid=", ".join(str(i) for i in qid),aql=urllib.parse.quote(qradar_prefix))
+        query_data = urllib.parse.quote(qradar_prefix)+"|"+urllib.parse.quote('["{text}"]'.format(text=qradar_prefix.replace('"','\\"')))
+        BBrule_data= buildingblock.format(name=saxutils.escape(rule.title), logsourceID=logsourceID, qid=", ".join(str(i) for i in qid),aql=query_data)
         BBrule_data = base64.b64encode(BBrule_data.encode('ascii')).decode('ascii')
         # Process Rule data xml
         rule_data = xmlrule.format(ruleID=ruleID, name=saxutils.escape(rule.title))
