@@ -10,6 +10,7 @@ Further, it contains the following processing pipelines in `sigma.pipelines.qrad
 
 ## Installation
 Qradar Backend is now part of Sigma CLI. Run command below 
+
 ```
 python -m pip install sigma-cli
 ```
