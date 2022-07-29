@@ -36,7 +36,7 @@ This backend is currently maintained by:
 * [nNipsx](https://github.com/nNipsx-Sec) aka Duc.Le from GTSC Team
 
 Supported by:
-* Dinh.Bui, Tuan.Le, Hieu.Le, Khanh.Dao, Hue.Vu - GTSC Team
+* Dinh.Bui, Tuan.Le, Hieu.Le, Khanh.Dao, Hue.Vu - Tilyx Team
 
 Special thanks to [thomaspatzke](https://github.com/thomaspatzke) 
 
