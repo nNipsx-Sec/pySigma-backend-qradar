@@ -8,6 +8,75 @@ from sigma.collection import SigmaCollection
 def qradar_backend():
     return QradarBackend()
 
+def test_qradar_and_expression(qradar_backend : QradarBackend):
+    rule = SigmaCollection.from_yaml("""
+            title: Test
+            status: test
+            logsource:
+                category: test_category
+                product: test_product
+            detection:
+                sel:
+                    fieldA: valueA
+                    fieldB: valueB
+                condition: sel
+        """)
+
+    assert qradar_backend.convert(rule) == ['SELECT UTF8(payload) as search_payload from events where "fieldA"=\'valueA\' AND "fieldB"=\'valueB\'']
+
+def test_qradar_or_expression(qradar_backend : QradarBackend):
+    rule = SigmaCollection.from_yaml("""
+            title: Test
+            status: test
+            logsource:
+                category: test_category
+                product: test_product
+            detection:
+                sel1:
+                    fieldA: valueA
+                sel2:
+                    fieldB: valueB
+                condition: 1 of sel*
+        """)
+    assert qradar_backend.convert(rule) == ['SELECT UTF8(payload) as search_payload from events where "fieldA"=\'valueA\' OR "fieldB"=\'valueB\'']
+
+def test_qradar_and_or_expression(qradar_backend : QradarBackend):
+    rule = SigmaCollection.from_yaml("""
+            title: Test
+            status: test
+            logsource:
+                category: test_category
+                product: test_product
+            detection:
+                sel:
+                    fieldA:
+                        - valueA1
+                        - valueA2
+                    fieldB:
+                        - valueB1
+                        - valueB2
+                condition: sel
+        """)
+    assert qradar_backend.convert(rule) == ['SELECT UTF8(payload) as search_payload from events where ("fieldA" ILIKE ENUMERATION(\'valueA1\',\'valueA2\')) AND ("fieldB" ILIKE ENUMERATION(\'valueB1\',\'valueB2\'))']
+
+def test_qradar_or_and_expression(qradar_backend : QradarBackend):
+    rule = SigmaCollection.from_yaml("""
+            title: Test
+            status: test
+            logsource:
+                category: test_category
+                product: test_product
+            detection:
+                sel1:
+                    fieldA: valueA1
+                    fieldB: valueB1
+                sel2:
+                    fieldA: valueA2
+                    fieldB: valueB2
+                condition: 1 of sel*
+        """)
+    assert qradar_backend.convert(rule) == ['SELECT UTF8(payload) as search_payload from events where "fieldA"=\'valueA1\' AND "fieldB"=\'valueB1\' OR "fieldA"=\'valueA2\' AND "fieldB"=\'valueB2\'']
+
 def test_qradar_in_expression(qradar_backend : QradarBackend):
     assert qradar_backend.convert(
         SigmaCollection.from_yaml("""
