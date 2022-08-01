@@ -153,7 +153,7 @@ class QradarBackend(TextQueryBackend):
     re_escape : ClassVar[Tuple[str]] = ('"',)
 
 
-    cidr_expression : ClassVar[str] = "INCIDR('{value}', {field})"
+    cidr_expression : ClassVar[str] = "INCIDR('{value}', \"{field}\")"
     startswith_expression : ClassVar[str] = "{field} ILIKE '{value}%'"
     endswith_expression   : ClassVar[str] = "{field} ILIKE '%{value}'"
     contains_expression   : ClassVar[str] = "{field} ILIKE '%{value}%'"
