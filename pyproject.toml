@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pysigma-backend-qradar"
-version = "0.1.7"
+version = "0.1.8"
 description = "pySigma Qradar backend"
 authors = ["nNipsx-Sec <nnipsxz@gmail.com>"]
 license = "LGPL-2.1-only"
