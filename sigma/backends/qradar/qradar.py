@@ -193,7 +193,7 @@ class QradarBackend(TextQueryBackend):
         super().__init__(processing_pipeline, collect_errors, **kwargs)
 
 
-    def finalize_query_default(self, rule: SigmaRule, query: str, index: int, state: ConversionState):
+    def finalize_query_default(self, rule: SigmaRule, query: str, index: int, state: ConversionState) -> str:
         if rule.logsource.product == "qflow" or rule.logsource.service == "netflow" or rule.logsource.product == "ipfix" or rule.logsource.category == "flow":
             aql_database = "flows"
         else:
