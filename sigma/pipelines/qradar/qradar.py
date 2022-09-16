@@ -302,7 +302,7 @@ def qradar_windows():
                     )
                 ],
                 rule_condition_linking=any,
-                field_name_conditions=[
+                detection_item_conditions=[
                     ExcludeFieldCondition(
                         fields = qradar_windows_event.keys()
                     )
@@ -355,7 +355,7 @@ def qradar_exetension():
                 identifier='qradar_windows_remove_eventid',
 
                 transformation = DropDetectionItemTransformation(),
-                field_name_conditions=[ IncludeFieldCondition(fields=["EventID"]) ],
+                detection_item_conditions=[ IncludeFieldCondition(fields=["EventID"]) ],
                 # Keep EventID field when can't mapping to QID Qradar
                 rule_conditions= [
                     RuleProcessingItemAppliedCondition("qradar_windows_eventid_mapping_qid"),
@@ -371,7 +371,7 @@ def qradar_exetension():
                     )
                 ],
                 rule_condition_linking=any,
-                field_name_conditions=[
+                detection_item_conditions=[
                     ExcludeFieldCondition(
                         fields = qradar_windows_event.keys()
                     )
