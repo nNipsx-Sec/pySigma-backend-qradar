@@ -154,10 +154,8 @@ class QradarBackend(TextQueryBackend):
 
 
     cidr_expression : ClassVar[str] = "INCIDR('{value}', \"{field}\")"
-    startswith_expression : ClassVar[str] = "{field} ILIKE '{value}%'"
-    endswith_expression   : ClassVar[str] = "{field} ILIKE '%{value}'"
-    contains_expression   : ClassVar[str] = "{field} ILIKE '%{value}%'"
 
+	wildcard_match_expression : ClassVar[str] = "{field} ILIKE {value}"
     compare_op_expression : ClassVar[str] = "{field} {operator} {value}"
 
     compare_operators : ClassVar[Dict[SigmaCompareExpression.CompareOperators, str]] = {
