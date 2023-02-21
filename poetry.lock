@@ -91,7 +91,7 @@ diagrams = ["railroad-diagrams", "jinja2"]
 
 [[package]]
 name = "pysigma"
-version = "0.8.1"
+version = "0.9.4"
 description = "Sigma rule processing and conversion tools"
 category = "main"
 optional = false
