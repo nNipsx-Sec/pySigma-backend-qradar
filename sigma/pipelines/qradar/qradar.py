@@ -292,6 +292,7 @@ def qradar_windows():
     return ProcessingPipeline(
         name="Qradar AQL field mapping",
         priority=20,
+        allowed_backends={"qradar"},
         items= [
             ProcessingItem(
                 identifier="Qradar_savedsearches_unsupported_fields",
@@ -326,6 +327,7 @@ def qradar_exetension():
     return ProcessingPipeline(
         name="Qradar extension format mappings",
         priority=20,
+        allowed_backends={"qradar"},
         items=
         [
             ProcessingItem(
