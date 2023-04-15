@@ -135,6 +135,13 @@ date = "{0}:{1}".format(
 )
 class QradarBackend(TextQueryBackend):
     """Qradar SPL backend."""
+    name : ClassVar[str] = "IBM QRadar"               	  # A descriptive name of the backend
+    formats : ClassVar[Dict[str, str]] = {                # Output formats provided by the backend as name -> description mapping. The name should match to finalize_output_<name>.
+        "default": "Plain QRadar AQL queries",
+        "extension": "QRadar extensions ZIP package",
+    }
+    requires_pipeline : ClassVar[bool] = False            # Does the backend requires that a processing pipeline is provided?
+
     group_expression : ClassVar[str] = "({expr})"
 
     or_token : ClassVar[str] = "OR"
